@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,26 +7,20 @@
 <title>DocuEase | Document Generator</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Poppins',sans-serif;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
 body{
   background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
   color:#fff;
 }
 header{
   padding:20px 50px;
-  background:rgba(0,0,0,0.4);
+  background:rgba(0,0,0,.4);
   backdrop-filter:blur(10px);
 }
-header h1{
-  color:#00e5ff;
-}
+header h1{color:#00e5ff}
 
 .container{
   display:grid;
@@ -34,62 +29,44 @@ header h1{
   padding:50px;
 }
 
-/* FORM */
-.form-box{
-  background:rgba(255,255,255,0.08);
+.form-box,.preview-box{
+  background:rgba(255,255,255,.08);
   padding:30px;
   border-radius:20px;
-  animation:fadeIn 1s ease;
 }
-.form-box h2{
-  margin-bottom:20px;
-  color:#00e5ff;
-}
-.form-group{
-  margin-bottom:15px;
-}
-.form-group label{
-  font-size:14px;
-}
-.form-group input,
-.form-group textarea{
+
+.form-box h2{color:#00e5ff;margin-bottom:20px}
+.form-group{margin-bottom:15px}
+.form-group input,.form-group textarea{
   width:100%;
   padding:12px;
   border:none;
   border-radius:10px;
-  margin-top:5px;
 }
-textarea{resize:none;height:100px}
+textarea{height:90px}
 
-/* PREVIEW */
 .preview-box{
   background:#fff;
   color:#000;
-  padding:30px;
-  border-radius:20px;
   position:relative;
-  animation:fadeIn 1.2s ease;
 }
-.preview-box h3{
-  margin-bottom:15px;
-}
-.preview{
-  font-size:14px;
-  line-height:1.6;
-}
+.preview{line-height:1.6;font-size:14px}
 
-/* BLUR LOCK */
 .lock{
   position:absolute;
   inset:0;
   backdrop-filter:blur(6px);
-  background:rgba(255,255,255,0.6);
+  background:rgba(255,255,255,.7);
   display:flex;
   align-items:center;
   justify-content:center;
   border-radius:20px;
 }
-.lock button{
+
+.pay-box{
+  text-align:center;
+}
+.pay-box button{
   padding:14px 30px;
   border:none;
   border-radius:30px;
@@ -98,17 +75,18 @@ textarea{resize:none;height:100px}
   cursor:pointer;
 }
 
-@keyframes fadeIn{
-  from{opacity:0;transform:translateY(20px)}
-  to{opacity:1;transform:translateY(0)}
+.download-btn{
+  margin-top:20px;
+  padding:12px 25px;
+  border:none;
+  border-radius:30px;
+  background:#00e5ff;
+  font-weight:600;
+  cursor:pointer;
 }
 
-/* MOBILE */
 @media(max-width:900px){
-  .container{
-    grid-template-columns:1fr;
-    padding:20px;
-  }
+  .container{grid-template-columns:1fr;padding:20px}
 }
 </style>
 </head>
@@ -121,72 +99,83 @@ textarea{resize:none;height:100px}
 
 <div class="container">
 
-  <!-- FORM -->
-  <div class="form-box">
-    <h2>Fill the Details</h2>
+<!-- FORM -->
+<div class="form-box">
+  <h2>Fill the Details</h2>
 
-    <div class="form-group">
-      <label>Full Name</label>
-      <input type="text" id="name" oninput="updateDoc()">
-    </div>
-
-    <div class="form-group">
-      <label>Company / Recipient</label>
-      <input type="text" id="company" oninput="updateDoc()">
-    </div>
-
-    <div class="form-group">
-      <label>Purpose</label>
-      <textarea id="purpose" oninput="updateDoc()"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label>Date</label>
-      <input type="date" id="date" oninput="updateDoc()">
-    </div>
-
+  <div class="form-group">
+    <input placeholder="Full Name" id="name" oninput="updateDoc()">
   </div>
 
-  <!-- PREVIEW -->
-  <div class="preview-box">
-    <h3>Document Preview</h3>
-    <div class="preview" id="previewText">
-      Fill out the form to see your document.
-    </div>
+  <div class="form-group">
+    <input placeholder="Recipient / Company" id="company" oninput="updateDoc()">
+  </div>
 
-    <!-- PAY LOCK -->
-    <div class="lock">
-      <button onclick="alert('Payment integration coming next!')">
-        🔒 Unlock & Download (₱49)
-      </button>
+  <div class="form-group">
+    <textarea placeholder="Purpose" id="purpose" oninput="updateDoc()"></textarea>
+  </div>
+
+  <div class="form-group">
+    <input type="date" id="date" oninput="updateDoc()">
+  </div>
+</div>
+
+<!-- PREVIEW -->
+<div class="preview-box">
+  <div class="preview" id="previewText">
+    Fill the form to preview your document.
+  </div>
+
+  <div class="lock" id="lock">
+    <div class="pay-box">
+      <h3>Unlock Document</h3>
+      <p>₱49 – One time download</p><br>
+      <button onclick="unlock()">Pay & Unlock</button>
     </div>
   </div>
+
+  <button class="download-btn" id="downloadBtn" onclick="downloadPDF()" style="display:none">
+    Download PDF
+  </button>
+</div>
 
 </div>
 
 <script>
+let unlocked = false;
+
 function updateDoc(){
-  const name = document.getElementById('name').value;
-  const company = document.getElementById('company').value;
-  const purpose = document.getElementById('purpose').value;
-  const date = document.getElementById('date').value;
+  const name = document.getElementById('name').value || '____________';
+  const company = document.getElementById('company').value || '____________';
+  const purpose = document.getElementById('purpose').value || '____________';
+  const date = document.getElementById('date').value || '____________';
 
   document.getElementById('previewText').innerHTML = `
-  <strong>Date:</strong> ${date || '________'}<br><br>
-
-  To whom it may concern,<br><br>
-
-  This letter is to formally state that I, <strong>${name || '_____________'}</strong>,
-  am writing in relation to <strong>${purpose || 'the stated purpose'}</strong>.
-
-  This letter is intended for <strong>${company || 'the concerned party'}</strong>.
-  <br><br>
-
-  Thank you for your consideration.<br><br>
-
-  Sincerely,<br>
-  <strong>${name || '_____________'}</strong>
+    <strong>Date:</strong> ${date}<br><br>
+    To whom it may concern,<br><br>
+    This letter is to formally state that I, <strong>${name}</strong>,
+    am writing regarding <strong>${purpose}</strong> intended for
+    <strong>${company}</strong>.<br><br>
+    Thank you for your consideration.<br><br>
+    Sincerely,<br>
+    <strong>${name}</strong>
   `;
+}
+
+function unlock(){
+  alert("Payment successful (Demo mode)");
+  unlocked = true;
+  document.getElementById('lock').style.display = "none";
+  document.getElementById('downloadBtn').style.display = "inline-block";
+}
+
+function downloadPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFont("Times");
+  doc.setFontSize(12);
+  doc.text(document.getElementById('previewText').innerText, 10, 20);
+  doc.save("DocuEase-Document.pdf");
 }
 </script>
 
