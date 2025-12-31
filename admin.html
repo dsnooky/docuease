@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Panel</title>
+<style>
+body{font-family:Arial;padding:20px}
+.card{
+  border:1px solid #ccc;
+  padding:15px;
+  margin-bottom:10px;
+}
+button{padding:5px 10px}
+</style>
+</head>
+<body>
+
+<h2>Admin – Payment Requests</h2>
+
+<div class="card">
+  <p><strong>Name:</strong> Juan Dela Cruz</p>
+  <p><strong>Type:</strong> Resume</p>
+  <button onclick="approve(this)">Approve</button>
+</div>
+
+<script>
+function approve(btn){
+  alert("User unlocked (demo)");
+  btn.innerText="Approved";
+  btn.disabled=true;
+}
+</script>
+
+</body>
+</html>
