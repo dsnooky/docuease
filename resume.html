@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DocuEase | Resume Builder</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins}
+body{background:#f4f6f8}
+header{padding:20px;background:#0f2027;color:#00e5ff}
+
+.container{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+  padding:20px;
+}
+
+.form,.preview{
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+}
+
+input,textarea{
+  width:100%;
+  padding:10px;
+  margin-bottom:10px;
+}
+
+.preview{
+  position:relative;
+}
+
+.lock{
+  position:absolute;
+  inset:0;
+  backdrop-filter:blur(4px);
+  background:rgba(255,255,255,.8);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+button{
+  padding:10px 20px;
+  border:none;
+  background:#00e5ff;
+  font-weight:600;
+  cursor:pointer;
+  border-radius:20px;
+}
+
+@media(max-width:900px){
+  .container{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>Resume Builder</h2>
+</header>
+
+<div class="container">
+
+<div class="form">
+<input placeholder="Full Name" id="name" oninput="update()">
+<input placeholder="Job Title" id="title" oninput="update()">
+<textarea placeholder="Professional Summary" id="summary" oninput="update()"></textarea>
+<textarea placeholder="Work Experience" id="exp" oninput="update()"></textarea>
+<textarea placeholder="Skills" id="skills" oninput="update()"></textarea>
+</div>
+
+<div class="preview">
+<div id="resume">
+<h2 id="rname"></h2>
+<p><strong id="rtitle"></strong></p><br>
+<p id="rsummary"></p><br>
+<h4>Experience</h4>
+<p id="rexp"></p><br>
+<h4>Skills</h4>
+<p id="rskills"></p>
+</div>
+
+<div class="lock" id="lock">
+  <button onclick="unlock()">Unlock Resume (₱79)</button>
+</div>
+
+<button onclick="download()" id="downloadBtn" style="display:none">Download PDF</button>
+</div>
+
+</div>
+
+<script>
+function update(){
+  rname.innerText=name.value;
+  rtitle.innerText=title.value;
+  rsummary.innerText=summary.value;
+  rexp.innerText=exp.value;
+  rskills.innerText=skills.value;
+}
+
+function unlock(){
+  alert("Payment successful (demo)");
+  lock.style.display="none";
+  downloadBtn.style.display="block";
+}
+
+function download(){
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF();
+  pdf.text(document.getElementById("resume").innerText,10,20);
+  pdf.save("Resume.pdf");
+}
+</script>
+
+</body>
+</html>
